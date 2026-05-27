@@ -1,5 +1,13 @@
 [
   {
+    "slug": "birth-of-pure-blog",
+    "title": "pure_blog 是怎么诞生的",
+    "date": "2026-05-27",
+    "summary": "一次从空仓库到极简静态博客的实验：把写作体验留给 Markdown，把发布结果交给 HTML、CSS 和 JSON。",
+    "file": "posts/2026-05-27-birth-of-pure-blog.json",
+    "tags": ["blog", "workflow", "static-site", "skills"]
+  },
+  {
     "slug": "hello-pure-blog",
     "title": "Hello, pure_blog",
     "date": "2026-05-26",

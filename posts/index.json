@@ -1,0 +1,18 @@
+[
+  {
+    "slug": "hello-pure-blog",
+    "title": "Hello, pure_blog",
+    "date": "2026-05-26",
+    "summary": "一个尽量简单的个人博客，从一份静态网页开始。",
+    "file": "posts/hello-pure-blog.json",
+    "tags": ["blog", "html", "simple"]
+  },
+  {
+    "slug": "simple-web",
+    "title": "把网页做简单",
+    "date": "2026-05-26",
+    "summary": "越少的依赖，越容易在未来被自己重新打开。",
+    "file": "posts/simple-web.json",
+    "tags": ["web", "html", "notes"]
+  }
+]

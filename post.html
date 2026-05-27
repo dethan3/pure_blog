@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ethan Sang 的个人博客文章。">
+  <title>文章 · Ethan Sang</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="wrap nav" aria-label="主导航">
+      <a class="brand" href="index.html">Ethan Sang</a>
+      <div class="links">
+        <a href="index.html#notes">文章</a>
+        <a href="index.html#about">关于</a>
+        <a href="mailto:iimsyw@gmail.com">联系</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <p id="status" class="status">正在加载文章……</p>
+    <article id="post" class="post" hidden>
+      <header class="post-header">
+        <p id="post-date" class="note-meta"></p>
+        <h1 id="post-title"></h1>
+        <p id="post-summary" class="lead"></p>
+        <ul id="post-tags" class="tag-list" aria-label="标签"></ul>
+      </header>
+      <div id="post-content" class="post-content"></div>
+    </article>
+
+    <nav class="post-nav" aria-label="文章导航">
+      <a href="index.html">← 返回首页</a>
+      <a href="https://github.com/dethan3/pure_blog">GitHub 源码</a>
+    </nav>
+  </main>
+
+  <footer class="site-footer footer">
+    <div class="wrap">
+      <span>© 2026 Ethan Sang</span>
+      <span>Pure HTML · CSS · JSON</span>
+    </div>
+  </footer>
+
+  <script>
+    const statusEl = document.querySelector('#status');
+    const postEl = document.querySelector('#post');
+    const titleEl = document.querySelector('#post-title');
+    const dateEl = document.querySelector('#post-date');
+    const summaryEl = document.querySelector('#post-summary');
+    const tagsEl = document.querySelector('#post-tags');
+    const contentEl = document.querySelector('#post-content');
+
+    function formatDate(date) {
+      return String(date || '').replaceAll('-', '.');
+    }
+
+    function appendTextElement(tagName, text) {
+      const el = document.createElement(tagName);
+      el.textContent = text || '';
+      contentEl.appendChild(el);
+    }
+
+    function renderBlock(block) {
+      if (!block || !block.type) return;
+
+      if (block.type === 'p') return appendTextElement('p', block.text);
+      if (block.type === 'h2') return appendTextElement('h2', block.text);
+      if (block.type === 'h3') return appendTextElement('h3', block.text);
+
+      if (block.type === 'quote') {
+        const quote = document.createElement('blockquote');
+        const p = document.createElement('p');
+        p.textContent = block.text || '';
+        quote.appendChild(p);
+        contentEl.appendChild(quote);
+        return;
+      }
+
+      if (block.type === 'ul' || block.type === 'ol') {
+        const list = document.createElement(block.type);
+        for (const item of block.items || []) {
+          const li = document.createElement('li');
+          li.textContent = item;
+          list.appendChild(li);
+        }
+        contentEl.appendChild(list);
+        return;
+      }
+
+      if (block.type === 'code') {
+        const pre = document.createElement('pre');
+        const code = document.createElement('code');
+        if (block.language) code.dataset.language = block.language;
+        code.textContent = block.text || '';
+        pre.appendChild(code);
+        contentEl.appendChild(pre);
+        return;
+      }
+
+      if (block.type === 'hr') {
+        contentEl.appendChild(document.createElement('hr'));
+      }
+    }
+
+    async function loadPost() {
+      const slug = new URLSearchParams(location.search).get('slug');
+      if (!slug) throw new Error('URL 里缺少 slug，例如 post.html?slug=hello-pure-blog');
+
+      const indexResponse = await fetch('posts/index.json', { cache: 'no-store' });
+      if (!indexResponse.ok) throw new Error('无法读取 posts/index.json');
+      const posts = await indexResponse.json();
+      const meta = posts.find((item) => item.slug === slug);
+      if (!meta) throw new Error(`没有找到 slug 为 ${slug} 的文章`);
+
+      const postResponse = await fetch(meta.file, { cache: 'no-store' });
+      if (!postResponse.ok) throw new Error(`无法读取 ${meta.file}`);
+      const post = await postResponse.json();
+
+      document.title = `${post.title} · Ethan Sang`;
+      titleEl.textContent = post.title || meta.title || 'Untitled';
+      dateEl.textContent = formatDate(post.date || meta.date);
+      summaryEl.textContent = post.summary || meta.summary || '';
+
+      tagsEl.replaceChildren();
+      for (const tag of post.tags || meta.tags || []) {
+        const li = document.createElement('li');
+        li.textContent = tag;
+        tagsEl.appendChild(li);
+      }
+
+      contentEl.replaceChildren();
+      for (const block of post.content || []) renderBlock(block);
+
+      statusEl.hidden = true;
+      postEl.hidden = false;
+    }
+
+    loadPost().catch((error) => {
+      statusEl.classList.add('error');
+      statusEl.textContent = error.message || '文章加载失败。';
+    });
+  </script>
+</body>
+</html>
